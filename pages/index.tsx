@@ -4,13 +4,27 @@ import ModalMessages from "../components/ModalMessages";
 
 export default function Home() {
     const [inputAddress, setInputAddress] = React.useState<string>("");
+    const [messages, setMessages] = React.useState<string>("");
+    const [colorMessages, setColorMessages] = React.useState<string>("");
+    const [isDisableBtn, setIsDisableBtn] = React.useState<boolean>(false);
+    const [isOpenModal, setIsOpenModal] = React.useState<boolean>(false);
 
     const changeInput = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInputAddress(event.target.value);
     };
 
-    const airdropFn =async () => {
+    const onClickModal = () => {
+        setIsOpenModal(false);
+        setIsDisableBtn(true);
+    };
+
+    const airdropFn = async () => {
         try {
+            setIsOpenModal(true);
+            setMessages('Loading...');
+            setColorMessages('text-blue-400');
+            setIsDisableBtn(true);
+
             const airdropSUi = await fetch('https://faucet.devnet.sui.io/gas', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -22,8 +36,14 @@ export default function Home() {
                     'Content-type': 'application/json; charset=UTF-8',
                 },
             });
-        }catch (e){
 
+            setMessages('Airdrop Success !');
+            setColorMessages('bg-green-500');
+            setIsDisableBtn(false);
+        } catch (e) {
+            setMessages('Airdrop Failed !');
+            setColorMessages('text-rose-500');
+            setIsDisableBtn(false);
         }
     };
 
@@ -44,7 +64,7 @@ export default function Home() {
                         />
                     </div>
                     <div className={'flex items-center justify-center gap-3'}>
-                        <div >Airdrop <span className={'font-semibold'}>0.05</span> $SUI to</div>
+                        <div>Airdrop <span className={'font-semibold'}>0.05</span> $SUI to</div>
                         <button className="p-3 bg-green-500 rounded-lg" onClick={airdropFn}>DevNet</button>
                     </div>
                 </div>
@@ -57,7 +77,12 @@ export default function Home() {
                 </span>
                 </div>
             </div>
-            <ModalMessages/>
+            <ModalMessages
+                isOpenModal={isOpenModal}
+                isDisableBtn={isDisableBtn}
+                color={colorMessages}
+                title={messages}
+                onClickBtn={onClickModal}/>
         </div>
     );
 }
